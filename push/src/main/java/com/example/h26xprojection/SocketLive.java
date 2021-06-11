@@ -7,8 +7,8 @@ import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
 
-import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
 
 /**
  * Created by Zach on 2021/6/10 21:43
@@ -17,6 +17,7 @@ public class SocketLive {
     private static final String TAG = "SocketLive";
 
     private WebSocket webSocket;
+    private WebSocketServer webSocketServer;
     private int port;
 
     private CodecLiveH26X codecLiveH26X;
@@ -26,9 +27,9 @@ public class SocketLive {
     }
 
     public void start(MediaProjection mediaProjection) {
-        Log.i(TAG, "port: " + port);
+        InetSocketAddress serverHost = new InetSocketAddress("192.168.1.103", port);
+        webSocketServer = new MyWebSocketServer(serverHost);
         webSocketServer.start();
-
 
         codecLiveH26X = new CodecLiveH26X(this, mediaProjection);
         codecLiveH26X.startLive();
@@ -55,11 +56,15 @@ public class SocketLive {
         }
     }
 
-    private WebSocketServer webSocketServer = new WebSocketServer(new InetSocketAddress(12005)) { // important! 这里直接写端口号client才连的上。 写port不行。 原因不明
+    public class MyWebSocketServer extends WebSocketServer {
+        MyWebSocketServer(InetSocketAddress host) {
+            super(host);
+        }
+
         @Override
         public void onOpen(WebSocket conn, ClientHandshake handshake) {
             SocketLive.this.webSocket = conn;
-            Log.i(TAG, "onOpen");
+            Log.i(TAG, "onOpen, client addr: " + conn.getRemoteSocketAddress());
         }
 
         @Override
@@ -69,17 +74,23 @@ public class SocketLive {
 
         @Override
         public void onMessage(WebSocket conn, String message) {
+            // http://www.websocket-test.com/  文本发送测试
             Log.d(TAG, "onMessage message: " + message);
         }
 
         @Override
+        public void onMessage(WebSocket conn, ByteBuffer message) {
+            Log.d(TAG, "onMessage bytebuffer: " + ByteUtil.byteBufferToString(message));
+        }
+
+        @Override
         public void onError(WebSocket conn, Exception ex) {
-            Log.i(TAG, "websocket onError: " + ex.toString());
+            Log.i(TAG, "websocket onError: " + ex);
         }
 
         @Override
         public void onStart() {
-
+            Log.i(TAG, "websocket start succ!");
         }
-    };
+    }
 }

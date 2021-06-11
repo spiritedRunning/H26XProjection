@@ -99,7 +99,7 @@ public class CodecLiveH26X extends Thread {
             byte[] iframe = new byte[bufferInfo.size];
             byteBuffer.get(iframe);
 
-            Log.i(TAG, "I frame: " + DataUtil.byte2hex(iframe));
+            Log.i(TAG, "I frame: " + ByteUtil.byte2hex(iframe));
             // 每个I帧前面添加一个vps_sps_pps
             byte[] buf = new byte[vps_sps_pps_buf.length + iframe.length];
             System.arraycopy(vps_sps_pps_buf, 0, buf, 0, vps_sps_pps_buf.length);
@@ -110,7 +110,7 @@ public class CodecLiveH26X extends Thread {
             byteBuffer.get(bytes);
             socketLive.sendData(bytes);
 
-            Log.i(TAG, "p/b frame: " + DataUtil.byte2hex(bytes));
+            Log.i(TAG, "p/b frame: " + ByteUtil.byte2hex(bytes));
         }
 
     }
