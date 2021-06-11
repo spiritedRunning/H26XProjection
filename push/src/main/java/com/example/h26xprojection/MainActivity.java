@@ -10,17 +10,16 @@ import android.media.projection.MediaProjection;
 import android.media.projection.MediaProjectionManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.TextView;
+
+import com.example.h26xprojection.push.R;
 
 public class MainActivity extends AppCompatActivity {
 
     private MediaProjectionManager mediaProjectionManager;
 
     private SocketLive socketLive;
-
-    static {
-        System.loadLibrary("native-lib");
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,9 +28,6 @@ public class MainActivity extends AppCompatActivity {
 
         checkPermission();
 
-        mediaProjectionManager = (MediaProjectionManager) getSystemService(MEDIA_PROJECTION_SERVICE);
-        Intent captureIntent = mediaProjectionManager.createScreenCaptureIntent();
-        startActivityForResult(captureIntent, 1);
     }
 
     public boolean checkPermission() {
@@ -44,6 +40,19 @@ public class MainActivity extends AppCompatActivity {
 
         }
         return false;
+    }
+
+    public void onStartProjection(View view) {
+        mediaProjectionManager = (MediaProjectionManager) getSystemService(MEDIA_PROJECTION_SERVICE);
+        Intent captureIntent = mediaProjectionManager.createScreenCaptureIntent();
+        startActivityForResult(captureIntent, 1);
+    }
+
+
+    public void onStopProjection(View view) {
+        if (socketLive != null) {
+            socketLive.close();
+        }
     }
 
 
@@ -60,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        socketLive = new SocketLive(11000);
+        socketLive = new SocketLive(12005);
         socketLive.start(mediaProjection);
     }
 
@@ -69,4 +78,5 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
         socketLive.close();
     }
+
 }

@@ -1,2 +1,2 @@
-include ':app'
+include ':push', ':play'
 rootProject.name = "H26XProjection"
